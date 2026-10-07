@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>応募先を登録・管理｜転職AI KIT</title>
+<style>
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#f7f7f7;margin:0;color:#333}.wrap{max-width:720px;margin:0 auto;padding:24px 16px}.card{background:#fff;border-radius:16px;padding:24px;box-shadow:0 4px 16px rgba(0,0,0,.06)}h1{font-size:24px;margin:0 0 8px}.sub{color:#666;margin-bottom:24px}.label{display:block;font-weight:700;margin:18px 0 8px}input,textarea,select{width:100%;box-sizing:border-box;border:1px solid #ddd;border-radius:10px;padding:12px;font-size:15px}textarea{min-height:140px;resize:vertical}.btn{border:0;border-radius:10px;padding:13px 18px;font-size:15px;font-weight:700;cursor:pointer;margin-top:18px}.save{background:#222;color:#fff}.delete{background:#eee;color:#555;margin-left:8px}.links{display:grid;gap:10px;margin-top:24px}.links a{text-decoration:none;background:#f0f5ff;color:#2454a6;padding:13px;border-radius:10px;font-weight:700}.status{margin-top:16px;padding:12px;border-radius:10px;background:#f1faf3;color:#287a3b;display:none}.note{font-size:13px;color:#777;margin-top:18px;line-height:1.7}
+</style>
+</head>
+<body>
+<div class="wrap"><div class="card">
+<h1>応募先を登録・管理</h1>
+<div class="sub">応募先情報を1回保存すると、⑤〜⑦で自動的に使えます。</div>
+<label class="label">会社名</label><input id="company" placeholder="例：株式会社〇〇">
+<label class="label">求人票・募集内容</label><textarea id="job" placeholder="求人票の内容を貼り付けてください"></textarea>
+<label class="label">自分の職歴・仕事内容</label><textarea id="career" placeholder="これまでの職歴や仕事内容"></textarea>
+<label class="label">自分の強み・アピールしたいこと</label><textarea id="strength" placeholder="強み・得意なこと・実績など"></textarea>
+<label class="label">応募したい理由</label><textarea id="reason" placeholder="この会社を志望する理由"></textarea>
+<label class="label">面接の段階</label><select id="stage"><option value="">選択してください</option><option>書類選考前</option><option>一次面接</option><option>二次面接</option><option>最終面接</option><option>その他</option></select>
+<label class="label">働くうえで重視したいこと・気になっていること</label><textarea id="priority" placeholder="仕事内容、給与、休日、教育体制など"></textarea>
+<button class="btn save" onclick="saveData()">💾 応募先情報を保存する</button><button class="btn delete" onclick="deleteData()">保存内容を消す</button>
+<div id="status" class="status"></div>
+<div class="links">
+<a href="career_ai_kit_company_analysis.html">④ 応募企業分析へ →</a>
+<a href="career_ai_kit_interview.html">⑤ 面接対策へ →</a>
+<a href="career_ai_kit_reason.html">⑥ 退職・転職理由へ →</a>
+<a href="career_ai_kit_reverse_questions.html">⑦ 逆質問メーカーへ →</a>
+</div>
+<div class="note">※入力内容はこのブラウザ内に保存されます。外部へ送信される仕組みではありません。別の応募先に変える場合は、内容を上書きして保存してください。</div>
+</div></div>
+<script>
+const KEY='careerAIKitApplication';
+const ids=['company','job','career','strength','reason','stage','priority'];
+function saveData(){const d={};ids.forEach(id=>d[id]=document.getElementById(id).value);localStorage.setItem(KEY,JSON.stringify(d));show('保存しました！⑤〜⑦でこの情報が使えます。');}
+function loadData(){try{const d=JSON.parse(localStorage.getItem(KEY)||'null');if(!d)return;ids.forEach(id=>{if(d[id]!=null)document.getElementById(id).value=d[id]});show('保存済みの応募先情報を読み込みました。');}catch(e){}}
+function deleteData(){if(!confirm('保存した応募先情報を削除しますか？'))return;localStorage.removeItem(KEY);ids.forEach(id=>document.getElementById(id).value='');show('保存内容を削除しました。');}
+function show(t){const s=document.getElementById('status');s.textContent=t;s.style.display='block';setTimeout(()=>s.style.display='none',3000)}
+loadData();
+</script>
+</body></html>
