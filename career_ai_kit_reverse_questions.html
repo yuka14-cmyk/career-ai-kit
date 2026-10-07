@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CAREER AI KIT｜逆質問メーカー</title>
+<style>
+:root{--navy:#172A46;--beige:#D8C8AE;--cream:#F7F3EC;--line:#ddd5c8;--text:#333}
+*{box-sizing:border-box}body{margin:0;background:var(--cream);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif}.wrap{max-width:760px;margin:auto;padding:28px 18px 50px}.brand{font-size:12px;letter-spacing:.2em;color:var(--navy);font-weight:700}.hero{background:var(--navy);color:#fff;border-radius:16px;padding:24px 22px;margin:10px 0 20px}.hero h1{margin:0 0 8px;font-size:28px}.hero p{margin:0;line-height:1.7;font-size:14px}.card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:22px;margin-bottom:16px;box-shadow:0 5px 18px rgba(0,0,0,.04)}.step{display:inline-block;background:var(--navy);color:#fff;border-radius:999px;padding:7px 12px;font-size:12px;font-weight:700;margin-bottom:10px}h2{font-size:18px;color:var(--navy);margin:4px 0 18px}label{display:block;font-weight:700;font-size:14px;margin:18px 0 8px}textarea{width:100%;min-height:120px;border:1px solid #ccc;border-radius:10px;padding:12px;font-size:14px;line-height:1.65;resize:vertical}select{width:100%;padding:12px;border:1px solid #ccc;border-radius:10px;background:#fff;font-size:14px}.notice{background:#f5f0e7;border-left:4px solid var(--beige);padding:12px 14px;border-radius:8px;font-size:13px;line-height:1.7;margin-bottom:16px}.btn{width:100%;border:0;border-radius:10px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;margin-top:16px}.primary{background:var(--navy);color:#fff}.secondary{background:var(--beige);color:var(--navy)}.result{display:none;white-space:pre-wrap;background:#fafafa;border:1px solid var(--line);border-radius:10px;padding:16px;line-height:1.7;font-size:13px}.copy{display:none}.success{text-align:center;color:#246044;font-size:13px;margin-top:10px}.small{font-size:12px;color:#777;line-height:1.7;margin-top:10px}.links{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}.links a{color:var(--navy);font-size:13px;font-weight:700;text-decoration:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="brand">CAREER AI KIT</div>
+<div class="hero"><h1>⑦ 逆質問メーカー</h1><p>応募先情報をもとに、面接で使える「逆質問」をChatGPTに作ってもらいます。</p></div>
+<div class="card">
+<div class="step">応募先情報</div>
+<h2>保存した応募先を使う</h2>
+<div id="savedNotice" class="notice">保存した応募先情報を読み込んでいます…</div>
+<label>応募企業・会社名</label>
+<input id="company" type="text" style="width:100%;padding:12px;border:1px solid #ccc;border-radius:10px;font-size:14px">
+<label>求人票・仕事内容</label>
+<textarea id="job" placeholder="求人票や募集内容を入力してください"></textarea>
+<button class="btn secondary" id="saveBtn">この応募先情報を保存する</button>
+<div id="saveMsg" class="success"></div>
+</div>
+<div class="card">
+<div class="step">STEP 1</div>
+<h2>あなたについて入力</h2>
+<label>自分の経験・強み</label>
+<textarea id="strength" placeholder="これまでの仕事、得意なこと、アピールしたい経験など"></textarea>
+<label>入社後に気になっていること</label>
+<textarea id="concern" placeholder="仕事内容、教育、配属、1日の流れなど"></textarea>
+<label>働くうえで重視したいこと</label>
+<textarea id="priority" placeholder="長く働ける環境、教育体制、チームの雰囲気など"></textarea>
+<label>面接の段階</label>
+<select id="stage"><option value="一次面接">一次面接</option><option value="二次面接">二次面接</option><option value="最終面接">最終面接</option><option value="その他">その他</option></select>
+<button class="btn primary" id="makeBtn">逆質問を作る</button>
+</div>
+<div class="card" id="resultCard" style="display:none">
+<div class="step">RESULT</div>
+<h2>ChatGPTに送るプロンプト</h2>
+<div id="result" class="result" style="display:block"></div>
+<button class="btn secondary" id="copyBtn">プロンプトをコピーする</button>
+<div id="copyMsg" class="success"></div>
+<div class="small">コピーした文章を、あなた自身のChatGPTに貼り付けて使ってください。事実と異なる内容は追加せず、求人票にない情報は「確認が必要」としてください。</div>
+</div>
+<div class="links"><a href="career_ai_kit_application.html">← 応募先登録</a><a href="career_ai_kit_interview.html">⑤ 面接対策</a><a href="career_ai_kit_reason.html">⑥ 転職理由</a></div>
+</div>
+<script>
+const KEY='careerAIKitApplication';
+const $=id=>document.getElementById(id);
+function loadSaved(){
+ try{
+  const d=JSON.parse(localStorage.getItem(KEY)||'null');
+  if(d){
+   if(d.company) $('company').value=d.company;
+   if(d.job) $('job').value=d.job;
+   if(d.strength && !$('strength').value) $('strength').value=d.strength;
+   if(d.concern && !$('concern').value) $('concern').value=d.concern;
+   if(d.priority && !$('priority').value) $('priority').value=d.priority;
+   if(d.stage) $('stage').value=d.stage;
+   $('savedNotice').innerHTML='💾 保存した応募先情報を読み込みました。必要ならここで編集できます。';
+  }else $('savedNotice').innerHTML='まだ応募先情報が保存されていません。ここで入力して保存できます。';
+ }catch(e){$('savedNotice').textContent='保存情報を読み込めませんでした。';}
+}
+$('saveBtn').onclick=()=>{
+ let d={}; try{d=JSON.parse(localStorage.getItem(KEY)||'{}')}catch(e){}
+ d.company=$('company').value.trim(); d.job=$('job').value.trim();
+ d.strength=$('strength').value.trim(); d.concern=$('concern').value.trim(); d.priority=$('priority').value.trim(); d.stage=$('stage').value;
+ localStorage.setItem(KEY,JSON.stringify(d)); $('saveMsg').textContent='保存しました。⑤・⑥でもこの応募先情報を使えます。';
+};
+$('makeBtn').onclick=()=>{
+ const p=`あなたは転職面接のプロです。以下の情報をもとに、応募先企業への「逆質問」を作成してください。\n\n【応募企業】\n${$('company').value}\n\n【求人票・仕事内容】\n${$('job').value}\n\n【自分の経験・強み】\n${$('strength').value}\n\n【入社後に気になっていること】\n${$('concern').value}\n\n【働くうえで重視したいこと】\n${$('priority').value}\n\n【面接段階】\n${$('stage').value}\n\n以下を作成してください。\n① 逆質問15個\n② 特におすすめの5個\n③ それぞれ「なぜ有効なのか」\n④ 質問への回答をもらった後の自然な返し方\n⑤ 志望度が伝わる質問\n⑥ 仕事内容・教育・チーム体制についての質問\n⑦ 長く働くうえで確認しておきたい質問\n⑧ 求人票だけでは分からないことを確認する質問\n⑨ 最終面接なら特におすすめの質問5個\n⑩ 避けた方がいい質問と、その言い換え\n\n最後に「この3つを聞けば十分」という最終候補を選んでください。\n求人票に書かれていない事実や待遇を推測して断定しないでください。私が提供した情報にない経験・実績・希望を勝手に作らないでください。自然で面接で実際に言いやすい日本語にしてください。`;
+ $('result').textContent=p; $('resultCard').style.display='block'; $('resultCard').scrollIntoView({behavior:'smooth'});
+};
+$('copyBtn').onclick=async()=>{try{await navigator.clipboard.writeText($('result').textContent);$('copyMsg').textContent='コピーしました！ChatGPTに貼り付けてください。'}catch(e){$('copyMsg').textContent='コピーできませんでした。文章を選択してコピーしてください。'}};
+loadSaved();
+</script>
+</body></html>
