@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CAREER AI KIT｜職務経歴書作成</title>
+<style>
+:root{--navy:#172A46;--beige:#D8C8AE;--cream:#F8F6F1;--text:#333;--muted:#777;--line:#e5ddd5}
+*{box-sizing:border-box}
+body{margin:0;background:var(--cream);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Noto Sans JP","Yu Gothic",sans-serif}
+.wrap{max-width:760px;margin:auto;padding:28px 18px 56px}
+.brand{font-size:11px;letter-spacing:.2em;color:var(--navy);font-weight:800}
+.hero{padding:14px 0 22px}
+h1{font-size:29px;line-height:1.4;color:var(--navy);margin:8px 0}
+.sub{font-size:14px;line-height:1.8;color:#555}
+.card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:22px;margin:14px 0;box-shadow:0 6px 20px rgba(23,42,70,.05)}
+.step{display:inline-block;background:var(--navy);color:#fff;border-radius:99px;padding:5px 11px;font-size:11px;letter-spacing:.08em;font-weight:700}
+h2{font-size:18px;color:var(--navy);margin:12px 0 18px}
+label{display:block;font-size:14px;font-weight:700;margin:18px 0 7px}
+small{display:block;color:var(--muted);font-weight:400;margin-top:4px;line-height:1.5}
+textarea{width:100%;min-height:105px;border:1px solid #d8d3cc;border-radius:10px;padding:12px;font:inherit;font-size:14px;line-height:1.65;resize:vertical;background:#fff}
+textarea:focus{outline:2px solid rgba(23,42,70,.15);border-color:var(--navy)}
+button{width:100%;border:0;border-radius:10px;padding:14px 16px;font:inherit;font-size:15px;font-weight:700;cursor:pointer;margin-top:18px}
+.primary{background:var(--navy);color:#fff}
+.secondary{background:var(--beige);color:var(--navy)}
+.result{display:none}
+.result textarea{min-height:360px;background:#faf9f6}
+.notice{font-size:12px;line-height:1.8;color:#666;background:#f4efe7;border-radius:10px;padding:12px;margin-top:16px}
+.success{text-align:center;color:#24604a;font-weight:700;min-height:22px;margin-top:10px;font-size:13px}
+.footer{text-align:center;color:#999;font-size:11px;line-height:1.7;margin-top:28px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand">CAREER AI KIT</div>
+  <div class="hero">
+    <h1>職務経歴書を<br>AIで作成する</h1>
+    <div class="sub">あなたの経験を入力するだけ。採用担当者に伝わりやすい職務経歴書のたたき台をChatGPTで作成できます。</div>
+  </div>
+
+  <div class="card">
+    <span class="step">STEP 01</span>
+    <h2>あなたの職歴を入力</h2>
+
+    <label>① これまでの職歴
+      <small>会社名・在籍期間・雇用形態など</small>
+    </label>
+    <textarea id="career" placeholder="例：〇〇株式会社／2018年4月〜2024年3月／正社員"></textarea>
+
+    <label>② 担当した仕事内容
+      <small>できるだけ具体的に入力してください</small>
+    </label>
+    <textarea id="role" placeholder="例：営業事務として受発注、納期管理、電話・メール対応など"></textarea>
+
+    <label>③ 主な業務
+      <small>日常的に担当していた業務を入力</small>
+    </label>
+    <textarea id="tasks" placeholder="例：受発注、伝票処理、請求書作成、電話対応、データ入力"></textarea>
+
+    <label>④ 使用したシステム・ソフト
+      <small>Excel、Word、会計ソフト、CADなど</small>
+    </label>
+    <textarea id="tools" placeholder="例：Excel、Word、〇〇会計、AutoCAD"></textarea>
+
+    <label>⑤ 工夫したこと・改善したこと
+      <small>業務を早くした、ミスを減らした、周囲と連携したなど</small>
+    </label>
+    <textarea id="improve" placeholder="例：入力ミスを減らすためチェック方法を工夫した"></textarea>
+
+    <label>⑥ 実績・成果
+      <small>数字があれば数字も入力。なければ「特になし」でOK</small>
+    </label>
+    <textarea id="results" placeholder="例：月〇件の受発注を担当／特になし"></textarea>
+
+    <label>⑦ 周囲から評価されたこと
+      <small>「対応が早い」「丁寧」など、思い当たることを入力</small>
+    </label>
+    <textarea id="praise" placeholder="例：対応が早い、細かい確認が丁寧と言われた"></textarea>
+
+    <button class="primary" onclick="makePrompt()">ChatGPT用プロンプトを作る</button>
+  </div>
+
+  <div class="card result" id="resultCard">
+    <span class="step">STEP 02</span>
+    <h2>ChatGPTに貼り付ける</h2>
+    <textarea id="prompt" readonly></textarea>
+    <button class="secondary" onclick="copyPrompt()">プロンプトをコピー</button>
+    <div class="success" id="success"></div>
+    <div class="notice">
+      コピーした文章をChatGPTに貼り付けて送信してください。<br>
+      AIが作成した内容は、事実と合っているか必ず確認してから応募書類に使用してください。
+    </div>
+  </div>
+
+  <div class="footer">CAREER AI KIT｜転職活動をAIで効率化するためのツール</div>
+</div>
+
+<script>
+function v(id){return document.getElementById(id).value.trim() || "特になし";}
+function makePrompt(){
+const p=`あなたは転職活動をサポートするキャリアアドバイザーです。
+
+以下の情報をもとに、採用担当者に伝わる職務経歴書を作成してください。
+
+【これまでの職歴】
+${v("career")}
+
+【担当した仕事内容】
+${v("role")}
+
+【主な業務】
+${v("tasks")}
+
+【使用したシステム・ソフト】
+${v("tools")}
+
+【工夫したこと・改善したこと】
+${v("improve")}
+
+【実績・成果】
+${v("results")}
+
+【周囲から評価されたこと】
+${v("praise")}
+
+以下の内容を作成してください。
+
+①職務要約
+②職務経歴
+③担当業務
+④仕事で工夫したこと
+⑤実績・成果
+⑥活かせる経験・スキル
+⑦自己PR
+
+単なる仕事内容の羅列ではなく、
+「何をしていたか」だけでなく
+「どのように仕事をしていたか」
+「どのような強みがあるか」
+が伝わる文章にしてください。
+
+本人が入力していない事実や実績は勝手に追加しないでください。
+数字がない場合は、無理に数字を作らないでください。`;
+
+document.getElementById("prompt").value=p;
+document.getElementById("resultCard").style.display="block";
+document.getElementById("resultCard").scrollIntoView({behavior:"smooth"});
+document.getElementById("success").textContent="";
+}
+async function copyPrompt(){
+const el=document.getElementById("prompt");
+try{
+await navigator.clipboard.writeText(el.value);
+document.getElementById("success").textContent="コピーしました！ChatGPTに貼り付けてください。";
+}catch(e){
+el.select(); document.execCommand("copy");
+document.getElementById("success").textContent="コピーしました！";
+}
+}
+</script>
+</body>
+</html>
