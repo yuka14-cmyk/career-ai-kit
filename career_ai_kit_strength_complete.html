@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CAREER AI KIT｜強み発掘</title>
+<style>
+:root{--navy:#172A46;--beige:#D8C8AE;--cream:#F8F6F1;--text:#333;--muted:#777;--line:#e5dfd5}
+*{box-sizing:border-box}
+body{margin:0;background:var(--cream);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Noto Sans JP","Yu Gothic",sans-serif}
+.wrap{max-width:760px;margin:auto;padding:28px 18px 56px}
+.brand{font-size:11px;letter-spacing:.2em;color:var(--navy);font-weight:800}
+.hero{padding:14px 0 22px}
+h1{font-size:29px;line-height:1.4;color:var(--navy);margin:8px 0}
+.sub{font-size:14px;line-height:1.8;margin:0;color:#555}
+.card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:22px;margin:14px 0;box-shadow:0 6px 20px rgba(23,42,70,.05)}
+.step{display:inline-block;background:var(--navy);color:#fff;border-radius:99px;padding:5px 11px;font-size:11px;letter-spacing:.08em;font-weight:700}
+h2{font-size:18px;color:var(--navy);margin:12px 0 18px}
+label{display:block;font-size:14px;font-weight:700;margin:18px 0 7px}
+small{font-weight:400;color:var(--muted)}
+textarea{width:100%;min-height:100px;border:1px solid #d8d3ca;border-radius:10px;padding:12px;font:inherit;font-size:14px;line-height:1.65;resize:vertical;background:#fff}
+textarea:focus{outline:2px solid rgba(23,42,70,.15);border-color:var(--navy)}
+button{width:100%;border:0;border-radius:10px;padding:14px 16px;font:inherit;font-size:15px;font-weight:700;cursor:pointer;margin-top:18px}
+.primary{background:var(--navy);color:#fff}
+.secondary{background:var(--beige);color:var(--navy)}
+.ghost{background:#fff;color:var(--navy);border:1px solid var(--navy)}
+.result{display:none}
+.result textarea{min-height:330px;background:#faf9f6}
+.notice{font-size:12px;line-height:1.8;color:#666;margin:14px 0 0}
+.success{text-align:center;color:#42604a;font-weight:700;min-height:22px;margin-top:10px;font-size:13px}
+.tip{background:#f4efe7;border-radius:10px;padding:12px;font-size:12px;line-height:1.8;margin-top:16px}
+.footer{text-align:center;color:#999;font-size:11px;margin-top:28px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand">CAREER AI KIT</div>
+  <div class="hero">
+    <h1>あなたの「強み」を<br>AIで見つける</h1>
+    <p class="sub">これまでの仕事経験を入力するだけ。ChatGPTにそのまま使える分析プロンプトを自動で作成します。</p>
+  </div>
+
+  <div class="card">
+    <span class="step">STEP 01</span>
+    <h2>仕事経験を入力してください</h2>
+
+    <label>① これまでの仕事内容 <small>会社名は不要です</small></label>
+    <textarea id="work" placeholder="例：営業事務として、受発注・見積書作成・電話対応などを担当"></textarea>
+
+    <label>② 主な業務を3つ</label>
+    <textarea id="tasks" placeholder="例：受発注処理／請求書作成／営業担当のサポート"></textarea>
+
+    <label>③ 仕事で褒められたこと</label>
+    <textarea id="praised" placeholder="例：対応が早い、ミスが少ない、説明が分かりやすいと言われた"></textarea>
+
+    <label>④ 自分では普通だと思うけど、得意なこと</label>
+    <textarea id="strength" placeholder="例：複数の仕事を整理する、細かい確認をする"></textarea>
+
+    <label>⑤ 大変だった仕事・乗り越えた経験</label>
+    <textarea id="challenge" placeholder="例：繁忙期に大量の注文を担当。優先順位をつけて期限内に処理した"></textarea>
+
+    <label>⑥ 数字で表せる実績 <small>なければ「なし」でOK</small></label>
+    <textarea id="result" placeholder="例：1日平均50件の受注処理／新人2名の教育を担当"></textarea>
+
+    <button class="primary" id="make">ChatGPT用プロンプトを作る</button>
+
+    <div class="tip">💡 すべて完璧に書く必要はありません。思いつく範囲で入力してください。AIが整理するのは「あなたが入力した経験」がベースです。</div>
+  </div>
+
+  <div class="card result" id="resultCard">
+    <span class="step">STEP 02</span>
+    <h2>完成したプロンプト</h2>
+    <textarea id="prompt" readonly></textarea>
+    <button class="secondary" id="copy">プロンプトをコピーする</button>
+    <button class="ghost" id="openChat">ChatGPTを開く</button>
+    <div class="success" id="success"></div>
+    <p class="notice">①「プロンプトをコピー」→ ②「ChatGPTを開く」→ ③貼り付けて送信、の順で使ってください。</p>
+    <p class="notice">※AIの回答は必ず内容を確認し、自分の実際の経験に合うように修正してから応募書類や面接で使用してください。</p>
+  </div>
+
+  <div class="footer">CAREER AI KIT</div>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+$("make").onclick=()=>{
+const p=`あなたは転職活動をサポートするキャリアアドバイザーです。
+
+以下の情報をもとに、この人の強みを分析してください。
+
+【仕事内容】
+${$("work").value||"未入力"}
+
+【主な業務】
+${$("tasks").value||"未入力"}
+
+【褒められたこと】
+${$("praised").value||"未入力"}
+
+【得意なこと】
+${$("strength").value||"未入力"}
+
+【大変だった仕事・乗り越えた経験】
+${$("challenge").value||"未入力"}
+
+【実績】
+${$("result").value||"未入力"}
+
+以下を整理してください。
+
+① この人の強みを5つ
+② それぞれの強みの具体的な根拠
+③ 職務経歴書で使える表現
+④ 面接で使える表現
+⑤ 本人が気づいていない可能性のある強み
+
+抽象的な表現だけで終わらせず、入力された経験を根拠に具体的に説明してください。
+入力されていない事実を勝手に作らないでください。
+強みについては「なぜそう判断できるのか」も説明してください。
+最後に、転職活動で特にアピールするとよい強みを3つに絞ってください。`;
+$("prompt").value=p;
+$("resultCard").style.display="block";
+$("resultCard").scrollIntoView({behavior:"smooth"});
+$("success").textContent="";
+};
+$("copy").onclick=async()=>{
+try{await navigator.clipboard.writeText($("prompt").value)}
+catch(e){$("prompt").select();document.execCommand("copy")}
+$("success").textContent="コピーしました。ChatGPTに貼り付けてください。";
+};
+$("openChat").onclick=()=>window.open("https://chatgpt.com/","_blank");
+</script>
+</body>
+</html>
