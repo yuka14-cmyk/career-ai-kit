@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CAREER AI KIT｜応募企業分析</title>
+<style>
+:root{--navy:#172A46;--beige:#D8C8AE;--cream:#F8F6F1;--text:#333;--muted:#777;--line:#e5ddd5}
+*{box-sizing:border-box}
+body{margin:0;background:var(--cream);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Noto Sans JP","Yu Gothic",sans-serif}
+.wrap{max-width:760px;margin:auto;padding:28px 18px 56px}
+.brand{font-size:12px;letter-spacing:.2em;color:var(--navy);font-weight:800}
+.hero{padding:14px 0 22px}
+h1{font-size:29px;line-height:1.4;color:var(--navy);margin:8px 0}
+.sub{font-size:14px;line-height:1.8;color:#555}
+.card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:22px;margin:14px 0;box-shadow:0 6px 20px rgba(23,42,70,.05)}
+.step{display:inline-block;background:var(--navy);color:#fff;border-radius:99px;padding:5px 11px;font-size:11px;letter-spacing:.08em;font-weight:700}
+h2{font-size:18px;color:var(--navy);margin:12px 0 18px}
+label{display:block;font-size:14px;font-weight:700;margin:18px 0 7px}
+small{display:block;color:var(--muted);font-size:12px;line-height:1.5;margin-top:4px}
+textarea{width:100%;min-height:120px;border:1px solid #d8d8d8;border-radius:10px;padding:12px;font:inherit;font-size:14px;line-height:1.65;resize:vertical;background:#fff}
+textarea:focus{outline:2px solid rgba(23,42,70,.15);border-color:var(--navy)}
+button{width:100%;border:0;border-radius:10px;padding:14px 16px;font:inherit;font-size:15px;font-weight:700;cursor:pointer;margin-top:18px}
+.primary{background:var(--navy);color:#fff}
+.secondary{background:var(--beige);color:var(--navy)}
+.result{display:none}
+.result textarea{min-height:480px;background:#faf9f6}
+.notice{font-size:12px;line-height:1.8;color:#666;background:#f4efe7;border-radius:10px;padding:12px;margin-top:16px}
+.success{text-align:center;color:#24604a;font-weight:700;margin-top:12px;display:none}
+footer{text-align:center;color:#999;font-size:11px;line-height:1.7;margin-top:28px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand">CAREER AI KIT</div>
+  <div class="hero">
+    <h1>応募企業をAIで分析する</h1>
+    <div class="sub">求人票とあなたの経験をもとに、「何をアピールすべきか」をAIに整理してもらいます。</div>
+  </div>
+
+  <div class="card">
+    <span class="step">STEP 1</span>
+    <h2>求人情報とあなたの情報を入力</h2>
+
+    <label>会社名</label>
+    <textarea id="company" style="min-height:70px" placeholder="例：株式会社○○"></textarea>
+
+    <label>求人票・募集要項</label>
+    <textarea id="job" placeholder="求人サイトの仕事内容、応募条件、求める人物像などをそのまま貼り付けてください"></textarea>
+
+    <label>自分の職歴・経験</label>
+    <textarea id="experience" placeholder="これまでの会社、仕事内容、経験年数など"></textarea>
+
+    <label>自分の強み・得意なこと</label>
+    <textarea id="strength" placeholder="例：事務経験8年、周囲との調整が得意、正確な作業が得意など"></textarea>
+
+    <label>応募したい理由・気になっている点</label>
+    <textarea id="reason" placeholder="例：仕事内容が自分の経験に近い、安定して長く働きたいなど"></textarea>
+
+    <button class="primary" onclick="makePrompt()">企業分析プロンプトを作る</button>
+  </div>
+
+  <div class="card result" id="result">
+    <span class="step">STEP 2</span>
+    <h2>生成されたプロンプト</h2>
+    <textarea id="prompt" readonly></textarea>
+    <button class="primary" onclick="copyPrompt()">プロンプトをコピーする</button>
+    <button class="secondary" onclick="openChatGPT()">ChatGPTを開く</button>
+    <div class="success" id="success">コピーしました！ChatGPTに貼り付けてください。</div>
+    <div class="notice">
+      ※求人票に書かれていない情報をAIが推測する場合があります。企業についての重要な判断は、公式情報や求人票などで必ず確認してください。
+    </div>
+  </div>
+
+  <footer>CAREER AI KIT｜転職活動をAIで効率化するためのツール</footer>
+</div>
+
+<script>
+function v(id){return document.getElementById(id).value.trim()||"（未入力）";}
+
+function makePrompt(){
+const prompt = `あなたは転職活動に詳しいキャリアアドバイザーです。
+以下の求人情報と応募者情報をもとに、この企業・求人への応募戦略を整理してください。
+
+【応募企業】
+${v("company")}
+
+【求人票・募集要項】
+${v("job")}
+
+【応募者の職歴・経験】
+${v("experience")}
+
+【応募者の強み・得意なこと】
+${v("strength")}
+
+【応募したい理由・気になっている点】
+${v("reason")}
+
+【分析してほしいこと】
+①この求人で企業が特に求めていそうな人物像を5つ
+②求人票から読み取れる「採用で重視されそうなポイント」を5つ
+③応募者の経験・強みと求人のマッチ度
+④応募者が特にアピールすべき経験・強みを5つ
+⑤逆に、応募者が弱く見えそうな部分と、その補い方
+⑥履歴書・職務経歴書で強調すべきキーワード
+⑦面接でアピールすべきポイント
+⑧面接で聞かれそうな質問10個
+⑨その質問への回答の方向性
+⑩この求人に応募する場合の「勝ち筋」を3つ
+⑪志望動機に入れると効果的な要素
+⑫自己PRに入れると効果的な要素
+
+【重要】
+・求人票に書かれていない事実を断定しないでください。
+・企業について分からないことは「求人情報からは判断できない」と明記してください。
+・応募者の経験や実績を勝手に作らないでください。
+・数字や資格なども入力されていないものは追加しないでください。
+・単なる一般論ではなく、求人内容と応募者情報を具体的に結びつけて分析してください。
+・最後に「この企業に応募するなら、まず何を準備すべきか」を優先順位順に5つまとめてください。`;
+
+document.getElementById("prompt").value=prompt;
+document.getElementById("result").style.display="block";
+document.getElementById("result").scrollIntoView({behavior:"smooth"});
+}
+
+async function copyPrompt(){
+const el=document.getElementById("prompt");
+try{await navigator.clipboard.writeText(el.value);}
+catch(e){el.select();document.execCommand("copy");}
+document.getElementById("success").style.display="block";
+setTimeout(()=>document.getElementById("success").style.display="none",2500);
+}
+function openChatGPT(){window.open("https://chatgpt.com/","_blank");}
+</script>
+</body>
+</html>
