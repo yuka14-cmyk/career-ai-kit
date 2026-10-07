@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CAREER AI KIT｜逆質問メーカー</title>
+<style>
+:root{--navy:#172A46;--beige:#D8C8AE;--cream:#F8F6F1;--text:#333;--muted:#777;--line:#e5ddd5}
+*{box-sizing:border-box}
+body{margin:0;background:var(--cream);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Noto Sans JP","Yu Gothic",sans-serif}
+.wrap{max-width:760px;margin:auto;padding:28px 18px 56px}
+.brand{font-size:12px;letter-spacing:.2em;color:var(--navy);font-weight:800}
+.hero{padding:14px 0 22px}
+h1{font-size:29px;line-height:1.4;color:var(--navy);margin:8px 0}
+.sub{font-size:14px;line-height:1.8;color:#555}
+.card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:22px;margin:14px 0;box-shadow:0 6px 20px rgba(23,42,70,.05)}
+.step{display:inline-block;background:var(--navy);color:#fff;border-radius:99px;padding:5px 11px;font-size:11px;letter-spacing:.08em;font-weight:700}
+h2{font-size:18px;color:var(--navy);margin:12px 0 18px}
+label{display:block;font-size:14px;font-weight:700;margin:18px 0 7px}
+textarea{width:100%;min-height:105px;border:1px solid #d8d8d8;border-radius:10px;padding:12px;font:inherit;font-size:14px;line-height:1.65;resize:vertical;background:#fff}
+textarea:focus{outline:2px solid rgba(23,42,70,.15);border-color:var(--navy)}
+button{width:100%;border:0;border-radius:10px;padding:14px 16px;font:inherit;font-size:15px;font-weight:700;cursor:pointer;margin-top:18px}
+.primary{background:var(--navy);color:#fff}
+.secondary{background:var(--beige);color:var(--navy)}
+.result{display:none}
+.result textarea{min-height:500px;background:#faf9f6}
+.notice{font-size:12px;line-height:1.8;color:#666;background:#f4efe7;border-radius:10px;padding:12px;margin-top:16px}
+.success{text-align:center;color:#24604a;font-weight:700;margin-top:12px;display:none}
+footer{text-align:center;color:#999;font-size:11px;line-height:1.7;margin-top:28px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="brand">CAREER AI KIT</div>
+<div class="hero">
+<h1>面接の「逆質問」をAIで作る</h1>
+<div class="sub">求人内容とあなたの希望をもとに、面接官に聞くべき質問を優先順位つきで整理します。</div>
+</div>
+
+<div class="card">
+<span class="step">STEP 1</span>
+<h2>応募先について入力</h2>
+
+<label>応募企業・会社名</label>
+<textarea id="company" style="min-height:70px" placeholder="例：株式会社○○"></textarea>
+
+<label>求人票・仕事内容</label>
+<textarea id="job" placeholder="求人票の仕事内容、応募条件、求める人物像などを貼り付けてください"></textarea>
+
+<label>自分の経験・強み</label>
+<textarea id="strength" placeholder="例：営業事務8年、CAD経験2年、調整業務が得意など"></textarea>
+
+<label>入社後に気になっていること</label>
+<textarea id="concern" placeholder="例：教育体制、1日の仕事の流れ、チーム構成など"></textarea>
+
+<label>働くうえで重視したいこと</label>
+<textarea id="priority" placeholder="例：長く働ける環境、仕事内容、休日、キャリア、職場の雰囲気など"></textarea>
+
+<label>面接の段階</label>
+<textarea id="stage" style="min-height:70px" placeholder="例：一次面接、二次面接、最終面接"></textarea>
+
+<button class="primary" onclick="makePrompt()">逆質問を作る</button>
+</div>
+
+<div class="card result" id="result">
+<span class="step">STEP 2</span>
+<h2>生成されたプロンプト</h2>
+<textarea id="prompt" readonly></textarea>
+<button class="primary" onclick="copyPrompt()">プロンプトをコピーする</button>
+<button class="secondary" onclick="openChatGPT()">ChatGPTを開く</button>
+<div class="success" id="success">コピーしました！ChatGPTに貼り付けてください。</div>
+<div class="notice">※給与・休日など条件面の質問は、面接の段階や企業との状況を考えて聞き方を調整してください。求人票にすでに書かれている内容だけをそのまま質問するのは避けると安心です。</div>
+</div>
+
+<footer>CAREER AI KIT｜転職活動をAIで効率化するためのツール</footer>
+</div>
+
+<script>
+function v(id){return document.getElementById(id).value.trim()||"（未入力）";}
+function makePrompt(){
+const prompt=`あなたは転職面接に詳しいキャリアアドバイザーです。
+以下の情報をもとに、応募企業に合った「逆質問」を作成してください。
+
+【応募企業】
+${v("company")}
+
+【求人票・仕事内容】
+${v("job")}
+
+【応募者の経験・強み】
+${v("strength")}
+
+【入社後に気になっていること】
+${v("concern")}
+
+【働くうえで重視したいこと】
+${v("priority")}
+
+【面接の段階】
+${v("stage")}
+
+【作成してほしいもの】
+①この面接で使いやすい逆質問を15個
+②その中でも特におすすめの質問を5個、優先順位順に選ぶ
+③各質問について「なぜこの質問が有効なのか」を簡潔に説明
+④質問をした後に面接官から回答をもらった場合の自然な返し方
+⑤応募者の志望度が伝わりやすい質問
+⑥入社後の仕事内容・教育・チーム体制を確認する質問
+⑦長く働くうえで確認しておきたい質問
+⑧求人票だけでは分からない点を確認する質問
+⑨最終面接で特におすすめの質問5個
+⑩避けたほうがいい逆質問と、その理由
+
+【重要ルール】
+・求人票に書かれている内容をそのまま聞く質問はできるだけ避けてください。
+・応募者が入力した希望や経験と自然につながる質問にしてください。
+・待遇だけを聞く質問ばかりにしないでください。
+・企業への興味・入社後の活躍意欲が伝わる質問を含めてください。
+・面接段階に合わない質問は避けてください。
+・企業について分からないことを事実のように推測しないでください。
+・最後に「この面接なら、この3つを聞けば十分」という最終候補を作ってください。`;
+
+document.getElementById("prompt").value=prompt;
+document.getElementById("result").style.display="block";
+document.getElementById("result").scrollIntoView({behavior:"smooth"});
+}
+async function copyPrompt(){
+const el=document.getElementById("prompt");
+try{await navigator.clipboard.writeText(el.value);}
+catch(e){el.select();document.execCommand("copy");}
+document.getElementById("success").style.display="block";
+setTimeout(()=>document.getElementById("success").style.display="none",2500);
+}
+function openChatGPT(){window.open("https://chatgpt.com/","_blank");}
+</script>
+</body>
+</html>
