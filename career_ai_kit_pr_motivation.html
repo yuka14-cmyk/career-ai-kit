@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CAREER AI KIT｜自己PR・志望動機作成</title>
+<style>
+:root{--navy:#172A46;--beige:#D8C8AE;--cream:#F8F6F1;--text:#333;--muted:#777;--line:#e5ddd5}
+*{box-sizing:border-box}
+body{margin:0;background:var(--cream);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Noto Sans JP","Yu Gothic",sans-serif}
+.wrap{max-width:760px;margin:auto;padding:28px 18px 56px}
+.brand{font-size:12px;letter-spacing:.2em;color:var(--navy);font-weight:800}
+.hero{padding:14px 0 22px}
+h1{font-size:29px;line-height:1.4;color:var(--navy);margin:8px 0}
+.sub{font-size:14px;line-height:1.8;color:#555}
+.card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:22px;margin:14px 0;box-shadow:0 6px 20px rgba(23,42,70,.05)}
+.step{display:inline-block;background:var(--navy);color:#fff;border-radius:99px;padding:5px 11px;font-size:11px;letter-spacing:.08em;font-weight:700}
+h2{font-size:18px;color:var(--navy);margin:12px 0 18px}
+label{display:block;font-size:14px;font-weight:700;margin:18px 0 7px}
+small{display:block;color:var(--muted);font-size:12px;line-height:1.5;margin-top:4px}
+textarea{width:100%;min-height:105px;border:1px solid #d8d8d8;border-radius:10px;padding:12px;font:inherit;font-size:14px;line-height:1.65;resize:vertical;background:#fff}
+textarea:focus{outline:2px solid rgba(23,42,70,.15);border-color:var(--navy)}
+button{width:100%;border:0;border-radius:10px;padding:14px 16px;font:inherit;font-size:15px;font-weight:700;cursor:pointer;margin-top:18px}
+.primary{background:var(--navy);color:#fff}
+.secondary{background:var(--beige);color:var(--navy)}
+.result{display:none}
+.result textarea{min-height:390px;background:#faf9f6}
+.notice{font-size:12px;line-height:1.8;color:#666;background:#f4efe7;border-radius:10px;padding:12px;margin-top:16px}
+.success{text-align:center;color:#24604a;font-weight:700;margin-top:12px;display:none}
+footer{text-align:center;color:#999;font-size:11px;line-height:1.7;margin-top:28px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand">CAREER AI KIT</div>
+  <div class="hero">
+    <h1>自己PR・志望動機をAIで作成する</h1>
+    <div class="sub">あなたの経験と応募先の情報から、採用担当者に伝わりやすい文章をChatGPTで作成します。</div>
+  </div>
+
+  <div class="card">
+    <span class="step">STEP 1</span>
+    <h2>あなたの情報を入力</h2>
+
+    <label>これまでの仕事内容</label>
+    <textarea id="work" placeholder="例：営業事務、一般事務、CADオペレーターなど"></textarea>
+
+    <label>自分の強み・得意なこと</label>
+    <textarea id="strength" placeholder="例：正確な事務処理、周囲との調整、コツコツ継続すること"></textarea>
+
+    <label>仕事で工夫したこと・頑張ったこと</label>
+    <textarea id="effort" placeholder="例：ミスを減らすためにチェック方法を見直した"></textarea>
+
+    <label>仕事で褒められたこと・評価されたこと</label>
+    <textarea id="praise" placeholder="例：丁寧で仕事が早いと言われた"></textarea>
+
+    <label>応募する会社・求人情報</label>
+    <textarea id="company" placeholder="会社名、仕事内容、求める人物像、求人票の文章などを貼り付けてください"></textarea>
+
+    <label>その会社を志望する理由</label>
+    <textarea id="reason" placeholder="例：仕事内容に興味がある、長く働きたい、経験を活かしたいなど"></textarea>
+
+    <button class="primary" onclick="makePrompt()">ChatGPT用プロンプトを作る</button>
+  </div>
+
+  <div class="card result" id="result">
+    <span class="step">STEP 2</span>
+    <h2>生成されたプロンプト</h2>
+    <textarea id="prompt" readonly></textarea>
+    <button class="primary" onclick="copyPrompt()">プロンプトをコピーする</button>
+    <button class="secondary" onclick="openChatGPT()">ChatGPTを開く</button>
+    <div class="success" id="success">コピーしました！ChatGPTに貼り付けてください。</div>
+    <div class="notice">
+      ※AIが作った文章は必ず自分の経験と合っているか確認してください。事実と違う内容や、実際にはない実績・数字は使用しないでください。
+    </div>
+  </div>
+
+  <footer>CAREER AI KIT｜転職活動をAIで効率化するためのツール</footer>
+</div>
+
+<script>
+function v(id){return document.getElementById(id).value.trim()||"（未入力）";}
+
+function makePrompt(){
+const prompt = `あなたは転職・採用支援に詳しいキャリアアドバイザーです。
+以下の情報をもとに、応募企業に合わせた「自己PR」と「志望動機」を作成してください。
+
+【応募者の情報】
+■これまでの仕事内容
+${v("work")}
+
+■自分の強み・得意なこと
+${v("strength")}
+
+■仕事で工夫したこと・頑張ったこと
+${v("effort")}
+
+■仕事で褒められたこと・評価されたこと
+${v("praise")}
+
+■応募する会社・求人情報
+${v("company")}
+
+■その会社を志望する理由
+${v("reason")}
+
+【作成してほしいもの】
+①履歴書に書ける自己PR（300〜400字程度）
+②履歴書に書ける志望動機（300〜400字程度）
+③面接で話しやすい自己PR（1分程度）
+④面接で話しやすい志望動機（1分程度）
+⑤応募企業が求めていそうな人物像
+⑥私の経験の中で、応募企業に特にアピールすべきポイント3つ
+⑦面接で深掘りされそうな質問5つと回答例
+
+【重要】
+・応募者が実際に経験していないことは絶対に作らないでください。
+・実績や数字を勝手に追加しないでください。
+・入力内容から自然に伝わる強みを活かしてください。
+・ありきたりな表現だけで終わらず、具体的な経験が伝わる文章にしてください。
+・採用担当者が「この人が入社したらどう活躍できそうか」がイメージできる内容にしてください。
+・自己PRと志望動機の内容が重複しすぎないようにしてください。
+・最後に「この応募者が特に強調すべきポイント」を3点にまとめてください。`;
+
+document.getElementById("prompt").value=prompt;
+document.getElementById("result").style.display="block";
+document.getElementById("result").scrollIntoView({behavior:"smooth"});
+}
+
+async function copyPrompt(){
+const el=document.getElementById("prompt");
+try{
+await navigator.clipboard.writeText(el.value);
+}catch(e){
+el.select();
+document.execCommand("copy");
+}
+document.getElementById("success").style.display="block";
+setTimeout(()=>document.getElementById("success").style.display="none",2500);
+}
+
+function openChatGPT(){
+window.open("https://chatgpt.com/","_blank");
+}
+</script>
+</body>
+</html>
